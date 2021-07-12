@@ -56,14 +56,12 @@ Development of epaper application based on EC600N-CN.
 4. 在`src`目录中新建Makefile文件。
 
    ```makefile
-   
    #-------------------------------------------------------------------------------
    # Configure variable
    #-------------------------------------------------------------------------------
    TOP_DIR:=$(TOP_DIR)
    ROOT_DIR:=$(TOP_DIR)/../..
    MAKEFILE_PATH :=$(subst $(strip \),/,$(abspath $(lastword $(MAKEFILE_LIST))))
-   
    
    #-------------------------------------------------------------------------------
    # Configure source code files
@@ -80,7 +78,8 @@ Development of epaper application based on EC600N-CN.
      -I${TOP_DIR}/ \
      -I${TOP_DIR}/interface/ql_epaper/inc \
      -I${TOP_DIR}/common/include \
-   
+     -I${TOP_DIR}/interface/os/inc \
+     -I${TOP_DIR}/interface/driver/inc \
    
    #-------------------------------------------------------------------------------
    # Configure compile flag for C
@@ -99,7 +98,6 @@ Development of epaper application based on EC600N-CN.
      -D__TM_ZONE=tm_zone \
      -D__TM_GMTOFF=tm_gmtoff \
    
-   
    #-------------------------------------------------------------------------------
    # Configure link library
    #-------------------------------------------------------------------------------
@@ -110,6 +108,8 @@ Development of epaper application based on EC600N-CN.
    #-------------------------------------------------------------------------------
    include ${TOP_DIR}/config/common/makefile.mk
    ```
+
+   [注]如果需要使用`spi`、`rtos`等驱动时，则需要在`INC_DIRS`中添加对应驱动头文件的位置。
 
 5. 将新建目录`interface\ql_epaper\src`添加到`ql-sdk\ql-application\threadx\makefile` 中的`COMMPILE_DIRS`变量中。
 
