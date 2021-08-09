@@ -15,6 +15,7 @@ Development of epaper application based on EC600N-CN.
 连接USB接口，打开QFlash，选择固件，点击`start`。
 
 [注意]在下载时最好断开串口连接，先启动下载，然后快速连接USB下载线。
+如果识别不了下载端口，在启动下载软件`QFlash`后重新插拔一次`USB`端口。设备管理器中显示的端口名称为`Quectel Download Port`。
 
 ## 3.驱动开发
 
@@ -189,6 +190,89 @@ user_kernel_init(boot_step2);
 断开USB连接，重新给模组上电即可。
 
 [注]如果运行时串口和`USB`共用一个`USB HUB`，很可能会因为供电不足导致串口或者`USB`异常。建议下载程序时断开串口，运行时断开USB并单独供电。
+
+## 4.电子纸驱动移植
+
+1.SPI通信
+
+SPI波特率
+
+SPI时钟频率
+
+SPI通道：QL_SPI_PORT1 //GPIO33-GPIO36
+
+| SPI信号 | 引脚号 | 管脚名     | GPIO   |
+| -------- | ------ | ---------- | ------ |
+| CLK      | 1      | SPI_CLK    | GPIO_33|
+| SDA      | 2      | SPI_RXD    | GPIO_35|
+| D/C      | 3      | SPI_TXD    | GPIO_36|
+| CS1      | 4      | SPI_CS     | GPIO_34|
+
+2.按键驱动
+
+| 按键序号 | 引脚号 | 管脚名     | GPIO   |
+| -------- | ------ | ---------- | ------ |
+| SW1      | 51     | W_DISABLE# | GPIO_5 |
+| SW2      | 58     | PCM_SYNC   | GPIO_17|
+| SW3      | 59     | PCM_DIN    | GPIO_19|
+| SW4      | 61     | PCM_CLK    | GPIO_16|
+
+3.其他管脚
+
+| 信号  | 引脚号 | 管脚名   | GPIO    |
+| ----- | ------ | -------- | ------- |
+| ADC   | 19     | ADC      | ADC0    |
+| BUSY1 | 56     | I2C_SDA  | GPIO_11 |
+| BUSY2 | 57     | I2C_SCL  | GPIO_10 |
+| LINK  | 60     | PCM_DOUT | GPIO_18 |
+| RST#  | 69     | GPIO1    | GPIO_32 |
+| CS2   | 70     | GPIO2    | GPIO_31 |
+
+[注]管脚号对应关系见`EC600N-CN Open 文档_0518\3-软件开发\14-其他\EC600N-CN_QuecOpen_GPIO_Assignment_Speadsheet-_Preliminary_20210207.xlsx`。
+
+4.添加定时器
+
+```c
+// Setup a timer for key detection
+static ql_timer_t gh_key_timer = NULL;
+
+static void gh_key_timer_expired_cb(u32 argv)
+{
+	// 定时器
+	static int cnt = 0;
+	cnt++;
+	// gh_epaper_key_scan();
+}
+
+void gh_key_timer_setup(void)
+{
+	int ret = 0;
+	ret = ql_rtos_timer_create(&gh_key_timer);
+	if (ret) {
+		gh_debug_log("Timer create failed!");
+	} else {
+		gh_debug_log("Timer create successful![%d]", ret);
+	}
+
+	ret = ql_rtos_timer_start(gh_key_timer, 1000, 1, gh_key_timer_expired_cb, 0);
+	if (ret) {
+		gh_debug_log("Timer start failed!");
+	} else {
+		gh_debug_log("Timer start successful![%d]", ret);
+	}
+}
+
+void gh_key_timer_stop(void)
+{
+	ql_rtos_timer_stop(gh_key_timer);
+}
+```
+
+[注]定时器回调函数`gh_key_timer_expired_cb`中不能调用任何等待或者阻塞接口，例如利用输出日志到串口的`printf()`函数。
+
+
+
+
 
 
 

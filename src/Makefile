@@ -13,7 +13,7 @@ MAKEFILE_PATH :=$(subst $(strip \),/,$(abspath $(lastword $(MAKEFILE_LIST))))
 SRC_FILES+= \
   epaper_boot.c \
   epaper_main.c \
-
+  gh_epaper.c \
 
 #-------------------------------------------------------------------------------
 # the include directories
@@ -24,7 +24,12 @@ INC_DIRS+= \
   -I${TOP_DIR}/common/include \
   -I${TOP_DIR}/interface/os/inc \
   -I${TOP_DIR}/interface/driver/inc \
-
+  -I${TOP_DIR}/interface/network/data_call/inc \
+  -I${TOP_DIR}/interface/network/sockets/inc \
+  -I${TOP_DIR}/interface/sim/inc \
+  -I${TOP_DIR}/interface/network/sockets/inc \
+  -I${TOP_DIR}/interface/dev/inc \
+  -I${TOP_DIR}/interface/network/nw/inc \
 #-------------------------------------------------------------------------------
 # Configure compile flag for C
 #-------------------------------------------------------------------------------
