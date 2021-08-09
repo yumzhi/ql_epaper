@@ -1,4 +1,3 @@
-
 #ifndef _QL_BOOT_H
 #define _QL_BOOT_H
 
